@@ -1,1 +1,2 @@
-from .core import DictWrapper
+from .wrapper import DictWrapper
+from .nested import NestedMapping

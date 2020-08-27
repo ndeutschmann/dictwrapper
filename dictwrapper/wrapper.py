@@ -33,3 +33,6 @@ class DictWrapper(MutableMapping):
     def values(self):
         """Access the dictionary values"""
         return self.store.values()
+
+    def __repr__(self):
+        return f"{self.__class__.__name__}({self.store.__repr__()})"

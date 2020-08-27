@@ -1,13 +1,37 @@
 """A nested dictionary like structure that allows flat access to its whole structure"""
 
-from dictwrapper import DictWrapper
+from collections import UserDict
+from collections.abc import Iterator
+from .wrapper import DictWrapperStub
 
 
 class MultipleKeyError(KeyError):
     """Signals that a nested mapping contains the same key multiple times"""
 
 
-class NestedMapping(DictWrapper):
+class NestedIterator(Iterator):
+    """Iterator for looping depth first through the leaves of a nested mapping"""
+
+    def __init__(self, mapping):
+        assert isinstance(mapping, NestedMapping)
+        self.iter_stack = [iter(mapping.data)]
+
+    def __next__(self):
+        if len(self.iter_stack) == 0:
+            raise StopIteration
+        try:
+            next_value = next(self.iter_stack[-1])
+            if isinstance(next_value, NestedMapping):
+                self.iter_stack.append(next_value)
+                return self.__next__()
+            else:
+                return next_value
+        except StopIteration:
+            self.iter_stack.pop(-1)
+            return self.__next__()
+
+
+class NestedMapping(DictWrapperStub):
     """A nested dictionary structure whose leaf keys are all accessible from the top level for read and write
     provided they are unique.
 
@@ -43,7 +67,7 @@ class NestedMapping(DictWrapper):
         MultipleKeyError: if the input key matches several entries in the structure
         KeyError: if no key match the input
         """
-        return self.find_store_(item)[item]
+        return self.find_data_(item)[item]
 
     def __setitem__(self, key, value):
         """Edit existing entries at any level, add new keys at the top level only.
@@ -54,12 +78,33 @@ class NestedMapping(DictWrapper):
         MultipleKeyError: if the input key matches several entries in the structure
         """
         try:
-            self.find_store_(key)[key] = value
+            self.find_data_(key)[key] = value
         except KeyError:
-            self.store[key] = value
+            self.data[key] = value
 
-    def find_store_(self, key):
-        """find the underlying dictionray matching a key at any level
+    def __delitem__(self, key):
+        del self.find_data_(key)[key]
+
+    def __iter__(self):
+        return NestedIterator(self)
+
+    def __len__(self):
+        current_len = len(self.data)
+        children = self.get_children()
+        if len(children) == 0:
+            return current_len
+
+        current_len -= len(children)
+        return current_len + sum([len(child) for child in children])
+
+    def get_children(self):
+        return [self.data[item] for item in self.data if isinstance(self.data[item], NestedMapping)]
+
+    def get_leaves(self):
+        return [self.data[item] for item in self.data if not isinstance(self.data[item], NestedMapping)]
+
+    def find_data_(self, key):
+        """find the underlying dictionary matching a key at any level
 
         Parameters
         ----------
@@ -68,7 +113,7 @@ class NestedMapping(DictWrapper):
         Returns
         -------
         dict
-            The `store` attribute containing the key
+            The `data` attribute containing the key
 
 
         Raises
@@ -79,15 +124,15 @@ class NestedMapping(DictWrapper):
         found = False
         result = None
         # Try the current toplevel
-        if key in self.store:
-            result = self.store
+        if key in self.data:
+            result = self.data
             found = True
 
         # Look at all sublevel
-        branches = [self.store[item] for item in self.store if isinstance(self.store[item], NestedMapping)]
+        branches = self.get_children()
         for branch in branches:
             try:
-                result = branch.find_store_(key)
+                result = branch.find_data_(key)
                 if found:
                     raise MultipleKeyError(key)
                 else:
@@ -99,4 +144,3 @@ class NestedMapping(DictWrapper):
             return result
         else:
             raise KeyError(key)
-

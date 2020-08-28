@@ -4,7 +4,8 @@ setup(
     name='dictwrapper',
     packages=find_packages(),
     install_requires=[
-        "pyyaml"
+        "pyyaml==5.3.1",
+        "pandas==1.1.1"
     ],
     version='1.0',
     description='Basic Dictionary Wrapper',

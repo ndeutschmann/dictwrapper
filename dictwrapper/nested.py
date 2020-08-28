@@ -1,6 +1,7 @@
 """A nested dictionary like structure that allows flat access to its whole structure"""
 
 from collections.abc import Iterator
+import pandas as pd
 import yaml
 from .wrapper import DictWrapperStub
 
@@ -194,26 +195,23 @@ class NestedMapping(DictWrapperStub):
         else:
             raise KeyError(key)
 
-    def to_dict(self):
+    def as_dict(self):
         """Produce a vanilla Python nested dictionnary by going through the whole structure"""
         new_dict = dict()
         new_dict.update(self.get_leaves())
 
-        for item, child in self.get_children():
-            new_dict[item] = child.to_dict()
+        new_dict.update(
+            ((item, child.as_dict()) for item, child in self.get_children())
+        )
 
         return new_dict
 
-    def to_dict_flat(self):
+    def as_flat_dict(self):
         """Produce a vanilla Python flat dictionnary by going through the whole structure and gathering all
         leaf mappings"""
 
-        new_dict = dict()
-        for key in self:
-            new_dict[key] = self[key]
-
-        return key
+        return super(NestedMapping, self).as_dict()
 
     def str(self):
         """Pretty representation of the full nested structure using YAML format"""
-        return f"""# {self.__class__.__name__}\n---\n"""+yaml.dump(self.to_dict(), Dumper=Dumper)
+        return f"""# {self.__class__.__name__}\n---\n""" + yaml.dump(self.as_dict(), Dumper=Dumper)

@@ -203,3 +203,13 @@ class NestedMapping(DictWrapperStub):
             new_dict[item] = child.to_dict()
 
         return new_dict
+
+    def to_dict_flat(self):
+        """Produce a vanilla Python flat dictionnary by going through the whole structure and gathering all
+        leaf mappings"""
+
+        new_dict = dict()
+        for key in self:
+            new_dict[key] = self[key]
+
+        return key

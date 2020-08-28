@@ -213,3 +213,7 @@ class NestedMapping(DictWrapperStub):
             new_dict[key] = self[key]
 
         return key
+
+    def str(self):
+        """Pretty representation of the full nested structure using YAML format"""
+        return f"""# {self.__class__.__name__}\n---\n"""+yaml.dump(self.to_dict(), Dumper=Dumper)

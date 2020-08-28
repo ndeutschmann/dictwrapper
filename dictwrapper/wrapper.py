@@ -10,8 +10,10 @@ class DictWrapperStub(MutableMapping, ABC):
         self.data = dict()
         self.update(*args, **kwargs)
 
-    __copy__ = UserDict.__copy__
-    copy = UserDict.copy
+    def copy(self):
+        return self.__class__(self.data.copy())
+
+    __copy__ = copy
 
     def __repr__(self):
         return f"{self.__class__.__name__}({self.data.__repr__()})"

@@ -3,6 +3,7 @@
 from collections.abc import Iterator
 import pandas as pd
 import yaml
+from copy import deepcopy, copy
 from .wrapper import DictWrapperStub
 
 try:
@@ -194,6 +195,19 @@ class NestedMapping(DictWrapperStub):
             return result
         else:
             raise KeyError(key)
+
+    def copy(self, deep=True):
+        """Deep copy by default
+        The user is likely to think of the whole nested structure as a single object. By the principle of least
+        surprise, we provide the natural behavior in .copy: the whoe structure is copied.
+
+        We keep the shallow __copy__ because a user employing copy.copy (as opposed to copy.deepcopy) is likely
+        to really want a shallow copy.
+        """
+        if deep:
+            return deepcopy(self)
+        else:
+            return copy(self)
 
     def as_dict(self):
         """Produce a vanilla Python nested dictionnary by going through the whole structure"""

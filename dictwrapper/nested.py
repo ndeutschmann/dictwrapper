@@ -14,18 +14,20 @@ class NestedIterator(Iterator):
 
     def __init__(self, mapping):
         assert isinstance(mapping, NestedMapping)
+        self.mapping = mapping
         self.iter_stack = [iter(mapping.data)]
 
     def __next__(self):
         if len(self.iter_stack) == 0:
             raise StopIteration
         try:
-            next_value = next(self.iter_stack[-1])
+            next_key = next(self.iter_stack[-1])
+            next_value = self.mapping[next_key]
             if isinstance(next_value, NestedMapping):
-                self.iter_stack.append(next_value)
+                self.iter_stack.append(iter(next_value.data))
                 return self.__next__()
             else:
-                return next_value
+                return next_key
         except StopIteration:
             self.iter_stack.pop(-1)
             return self.__next__()

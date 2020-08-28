@@ -1,8 +1,13 @@
 """A nested dictionary like structure that allows flat access to its whole structure"""
 
-from collections import UserDict
 from collections.abc import Iterator
+import yaml
 from .wrapper import DictWrapperStub
+
+try:
+    from yaml import CLoader as Loader, CDumper as Dumper
+except ImportError:
+    from yaml import Loader, Dumper
 
 
 class MultipleKeyError(KeyError):
@@ -60,6 +65,40 @@ class NestedMapping(DictWrapperStub):
     a dictionary for fast access. Use this for small data used infrequently (it is designed to hold configurations
      and be used at initialization/wrap-up).
     """
+
+    def __init__(self, *args, recursive=True, check=True):
+        """
+
+        Parameters
+        ----------
+        args :
+            positional argument: either nothing or a valid object for dictionary instantiation
+        recursive : bool
+            whether to go down the dictionary and convert all sub dictionaries to NestedMappings
+        check : bool
+            whether to check that the nested structure is valid (i.e. there are no repeated keys)
+        """
+        super(NestedMapping, self).__init__(*args)
+        if recursive:
+            for key in self.data:
+                if isinstance(self.data[key], dict):
+                    self.data[key] = NestedMapping(self.data[key], recursive=True, check=False)
+
+        if check:
+            for key in self:
+                try:
+                    # getitem fails if a key is duplicate
+                    self[key]
+                except MultipleKeyError as e:
+                    raise MultipleKeyError(f"Invalid structure at instantiation: repeated key {key}") from e
+
+    @classmethod
+    def from_yaml_stream(cls, stream, loader=Loader, recursive=True, check=True):
+        return cls(yaml.load(stream, Loader=loader), recursive=recursive, check=check)
+
+    @classmethod
+    def from_yaml(cls, filepath, loader=Loader, recursive=True, check=True):
+        return cls.from_yaml_stream(open(filepath, mode="r"), loader=loader, recursive=recursive, check=check)
 
     def __getitem__(self, item):
         """Look for the key in the current level, otherwise look for it in the sublevels

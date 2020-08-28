@@ -3,6 +3,9 @@ from setuptools import find_packages, setup
 setup(
     name='dictwrapper',
     packages=find_packages(),
+    install_requires=[
+        "pyyaml"
+    ],
     version='1.0',
     description='Basic Dictionary Wrapper',
     long_description=open("README.md").read(),

@@ -10,8 +10,12 @@ except ImportError:
     from yaml import Loader, Dumper
 
 
-class MultipleKeyError(KeyError):
+class MultipleKeyError(Exception):
     """Signals that a nested mapping contains the same key multiple times"""
+
+
+class ProtectedKeyError(Exception):
+    """Signals that a key is accessible for reading but not writing"""
 
 
 class NestedIterator(Iterator):
@@ -117,10 +121,14 @@ class NestedMapping(DictWrapperStub):
         Raises
         ------
         MultipleKeyError: if the input key matches several entries in the structure
+        KeyError: if the input key is not found or is mapped to a substructure of NestedMapping
         """
         try:
-            self.find_data_(key)[key] = value
-        except KeyError:
+            node = self.find_data_(key)
+            if isinstance(node[key], NestedMapping):
+                raise ProtectedKeyError(key, "Trying to overwrite a subtree")
+            node[key] = value
+        except KeyError as e:
             self.data[key] = value
 
     def __delitem__(self, key):

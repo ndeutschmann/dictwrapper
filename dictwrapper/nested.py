@@ -136,13 +136,13 @@ class NestedMapping(DictWrapperStub):
             return current_len
 
         current_len -= len(children)
-        return current_len + sum([len(child) for child in children])
+        return current_len + sum([len(child) for _, child in children])
 
     def get_children(self):
-        return [self.data[item] for item in self.data if isinstance(self.data[item], NestedMapping)]
+        return [(item, self.data[item]) for item in self.data if isinstance(self.data[item], NestedMapping)]
 
     def get_leaves(self):
-        return [self.data[item] for item in self.data if not isinstance(self.data[item], NestedMapping)]
+        return [(item, self.data[item]) for item in self.data if not isinstance(self.data[item], NestedMapping)]
 
     def find_data_(self, key):
         """find the underlying dictionary matching a key at any level
@@ -171,7 +171,7 @@ class NestedMapping(DictWrapperStub):
 
         # Look at all sublevel
         branches = self.get_children()
-        for branch in branches:
+        for _, branch in branches:
             try:
                 result = branch.find_data_(key)
                 if found:
@@ -185,3 +185,13 @@ class NestedMapping(DictWrapperStub):
             return result
         else:
             raise KeyError(key)
+
+    def to_dict(self):
+        """Produce a vanilla Python nested dictionnary by going through the whole structure"""
+        new_dict = dict()
+        new_dict.update(self.get_leaves())
+
+        for item, child in self.get_children():
+            new_dict[item] = child.to_dict()
+
+        return new_dict

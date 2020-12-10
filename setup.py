@@ -10,6 +10,7 @@ setup(
     version='1.0',
     description='Basic Dictionary Wrapper',
     long_description=open("README.md").read(),
+    long_description_content_type="text/markdown",
     author='Nicolas Deutschmann',
     author_email="nicolas.deutschmann@gmail.com",
     license='MIT',

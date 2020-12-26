@@ -1,15 +1,11 @@
-"""A nested dictionary like structure that allows flat access to its whole structure"""
-
+"""A nested dictionary like structure that allows flat access to its whole structure""" 
 from collections.abc import Iterator
 import pandas as pd
-import yaml
+import ruamel.yaml as yaml
 from copy import deepcopy, copy
 from .wrapper import DictWrapperStub
 
-try:
-    from yaml import CLoader as Loader, CDumper as Dumper
-except ImportError:
-    from yaml import Loader, Dumper
+from yaml import Loader, Dumper
 
 
 class MultipleKeyError(Exception):

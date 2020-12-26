@@ -4,10 +4,10 @@ setup(
     name='dictwrapper',
     packages=find_packages(),
     install_requires=[
-        "pyyaml>=5.3",
+        "ruamel.yaml<=0.15",
         "pandas>=1.1"
     ],
-    version='1.0',
+    version='1.1',
     description='Basic Dictionary Wrapper',
     long_description=open("README.md").read(),
     long_description_content_type="text/markdown",

@@ -7,7 +7,7 @@ setup(
         "ruamel.yaml<=0.15",
         "pandas>=1.1"
     ],
-    version='1.1',
+    version='1.2',
     description='Basic Dictionary Wrapper',
     long_description=open("README.md").read(),
     long_description_content_type="text/markdown",

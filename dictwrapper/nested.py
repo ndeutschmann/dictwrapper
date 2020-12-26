@@ -5,8 +5,15 @@ import ruamel.yaml as yaml
 from copy import deepcopy, copy
 from .wrapper import DictWrapperStub
 
-from yaml import Loader, Dumper
+def construct_yaml_tuple(self, node):
+    """Constructor function with Instructions to build tuples from YAML files"""
+    return self.construct_sequence(node)
 
+# Register !!python/tuple as a safe instruction in YAML files and associate it
+# With our constructor function
+yaml.SafeConstructor.add_constructor(
+    u'tag:yaml.org,2002:python/tuple',
+    construct_yaml_tuple)
 
 class MultipleKeyError(Exception):
     """Signals that a nested mapping contains the same key multiple times"""
@@ -95,12 +102,12 @@ class NestedMapping(DictWrapperStub):
                     raise MultipleKeyError(f"Invalid structure at instantiation: repeated key {key}") from e
 
     @classmethod
-    def from_yaml_stream(cls, stream, loader=Loader, recursive=True, check=True):
-        return cls(yaml.load(stream, Loader=loader), recursive=recursive, check=check)
+    def from_yaml_stream(cls, stream, recursive=True, check=True):
+        return cls(yaml.safe_load(stream), recursive=recursive, check=check)
 
     @classmethod
-    def from_yaml(cls, filepath, loader=Loader, recursive=True, check=True):
-        return cls.from_yaml_stream(open(filepath, mode="r"), loader=loader, recursive=recursive, check=check)
+    def from_yaml(cls, filepath, recursive=True, check=True):
+        return cls.from_yaml_stream(open(filepath, mode="r"), recursive=recursive, check=check)
 
     def __getitem__(self, item):
         """Look for the key in the current level, otherwise look for it in the sublevels
@@ -224,4 +231,4 @@ class NestedMapping(DictWrapperStub):
 
     def str(self):
         """Pretty representation of the full nested structure using YAML format"""
-        return f"""# {self.__class__.__name__}\n---\n""" + yaml.dump(self.as_dict(), Dumper=Dumper)
+        return f"""# {self.__class__.__name__}\n---\n""" + yaml.dump(self.as_dict())

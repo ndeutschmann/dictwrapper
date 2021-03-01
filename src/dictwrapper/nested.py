@@ -1,19 +1,22 @@
-"""A nested dictionary like structure that allows flat access to its whole structure""" 
+"""A nested dictionary like structure that allows flat access to its whole structure"""
 from collections.abc import Iterator
 import pandas as pd
 import ruamel.yaml as yaml
 from copy import deepcopy, copy
 from .wrapper import DictWrapperStub
 
+
 def construct_yaml_tuple(self, node):
     """Constructor function with Instructions to build tuples from YAML files"""
     return tuple(self.construct_sequence(node))
 
+
 # Register !!python/tuple as a safe instruction in YAML files and associate it
 # With our constructor function
 yaml.SafeConstructor.add_constructor(
-    u'tag:yaml.org,2002:python/tuple',
-    construct_yaml_tuple)
+    "tag:yaml.org,2002:python/tuple", construct_yaml_tuple
+)
+
 
 class MultipleKeyError(Exception):
     """Signals that a nested mapping contains the same key multiple times"""
@@ -91,7 +94,9 @@ class NestedMapping(DictWrapperStub):
         if recursive:
             for key in self.data:
                 if isinstance(self.data[key], dict):
-                    self.data[key] = NestedMapping(self.data[key], recursive=True, check=False)
+                    self.data[key] = NestedMapping(
+                        self.data[key], recursive=True, check=False
+                    )
 
         if check:
             for key in self:
@@ -99,7 +104,9 @@ class NestedMapping(DictWrapperStub):
                     # getitem fails if a key is duplicate
                     self[key]
                 except MultipleKeyError as e:
-                    raise MultipleKeyError(f"Invalid structure at instantiation: repeated key {key}") from e
+                    raise MultipleKeyError(
+                        f"Invalid structure at instantiation: repeated key {key}"
+                    ) from e
 
     @classmethod
     def from_yaml_stream(cls, stream, recursive=True, check=True):
@@ -107,7 +114,9 @@ class NestedMapping(DictWrapperStub):
 
     @classmethod
     def from_yaml(cls, filepath, recursive=True, check=True):
-        return cls.from_yaml_stream(open(filepath, mode="r"), recursive=recursive, check=check)
+        return cls.from_yaml_stream(
+            open(filepath, mode="r"), recursive=recursive, check=check
+        )
 
     def __getitem__(self, item):
         """Look for the key in the current level, otherwise look for it in the sublevels
@@ -152,10 +161,18 @@ class NestedMapping(DictWrapperStub):
         return current_len + sum([len(child) for _, child in children])
 
     def get_children(self):
-        return [(item, self.data[item]) for item in self.data if isinstance(self.data[item], NestedMapping)]
+        return [
+            (item, self.data[item])
+            for item in self.data
+            if isinstance(self.data[item], NestedMapping)
+        ]
 
     def get_leaves(self):
-        return [(item, self.data[item]) for item in self.data if not isinstance(self.data[item], NestedMapping)]
+        return [
+            (item, self.data[item])
+            for item in self.data
+            if not isinstance(self.data[item], NestedMapping)
+        ]
 
     def find_data_(self, key):
         """find the underlying dictionary matching a key at any level

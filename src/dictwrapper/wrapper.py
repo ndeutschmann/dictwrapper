@@ -5,7 +5,6 @@ import pandas as pd
 
 
 class DictWrapperStub(MutableMapping, ABC):
-
     def __init__(self, *args, **kwargs):
         self.data = dict()
         self.update(*args, **kwargs)
@@ -24,10 +23,7 @@ class DictWrapperStub(MutableMapping, ABC):
 
     def as_dataframe(self):
         """Represent the data as a pandas Dataframe with a single row"""
-        return pd.DataFrame(
-            [self.values()],
-            columns=self.keys()
-        )
+        return pd.DataFrame([self.values()], columns=self.keys())
 
 
 class DictWrapper(DictWrapperStub, UserDict):

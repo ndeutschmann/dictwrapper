@@ -4,7 +4,7 @@ setup(
     name='dictwrapper',
     packages=find_packages(),
     install_requires=[
-        "ruamel.yaml<=0.15",
+        "ruamel.yaml <= 0.16.12",
         "pandas>=1.1"
     ],
     version='1.2',

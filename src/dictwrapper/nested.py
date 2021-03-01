@@ -7,7 +7,7 @@ from .wrapper import DictWrapperStub
 
 def construct_yaml_tuple(self, node):
     """Constructor function with Instructions to build tuples from YAML files"""
-    return self.construct_sequence(node)
+    return tuple(self.construct_sequence(node))
 
 # Register !!python/tuple as a safe instruction in YAML files and associate it
 # With our constructor function

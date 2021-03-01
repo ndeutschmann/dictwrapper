@@ -1,0 +1,8 @@
+string: some_test
+integer: 3
+float: 3.0
+bool: True
+list:
+  - 1
+  - 2
+  - 3

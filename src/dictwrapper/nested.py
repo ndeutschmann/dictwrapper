@@ -1,5 +1,5 @@
 """A nested dictionary like structure that allows flat access to its whole structure"""
-from collections.abc import Iterator
+from collections.abc import Iterator, Mapping
 import yaml
 from copy import deepcopy, copy
 from .wrapper import DictWrapperStub
@@ -160,6 +160,11 @@ class NestedMapping(DictWrapperStub):
             for item in self.data
             if not isinstance(self.data[item], NestedMapping)
         ]
+
+    def update(self, mapping: Mapping):
+        """Update using a flat dictionary mapping to Nested leaves"""
+        for k, v in mapping.items():
+            self[k] = v
 
     def find_data_(self, key):
         """find the underlying dictionary matching a key at any level

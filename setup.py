@@ -8,7 +8,7 @@ setup(
         "pyyaml>=6.0",
         "pandas>=1.1"
     ],
-    version='1.4',
+    version='1.5',
     description='Basic Dictionary Wrapper',
     long_description=open("README.md").read(),
     long_description_content_type="text/markdown",

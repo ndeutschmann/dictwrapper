@@ -1,4 +1,4 @@
-      nice_tuple: !!python/tuple
+nice_tuple: !!python/tuple
       - 1 
       - 2
       - 3

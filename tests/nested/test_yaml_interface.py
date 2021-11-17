@@ -1,5 +1,6 @@
 from dictwrapper import NestedMapping
 import pathlib
+import yaml
 
 current_path = pathlib.Path(__file__).parent.absolute()
 
@@ -23,7 +24,7 @@ class TestYAMLFileImport:
         check_dict_by_key(nm, target)
 
     def test_tuple_import(self):
-        nm = NestedMapping.from_yaml(current_path / "tuple.yaml")
+        nm = NestedMapping.from_yaml(current_path / "tuple.yaml", loader=yaml.FullLoader)
         target = {"nice_tuple": (1, 2, 3)}
 
         check_dict_by_key(nm, target)

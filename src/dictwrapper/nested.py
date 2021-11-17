@@ -1,21 +1,8 @@
 """A nested dictionary like structure that allows flat access to its whole structure"""
 from collections.abc import Iterator
-import pandas as pd
-import ruamel.yaml as yaml
+import yaml
 from copy import deepcopy, copy
 from .wrapper import DictWrapperStub
-
-
-def construct_yaml_tuple(self, node):
-    """Constructor function with Instructions to build tuples from YAML files"""
-    return tuple(self.construct_sequence(node))
-
-
-# Register !!python/tuple as a safe instruction in YAML files and associate it
-# With our constructor function
-yaml.SafeConstructor.add_constructor(
-    "tag:yaml.org,2002:python/tuple", construct_yaml_tuple
-)
 
 
 class MultipleKeyError(Exception):
@@ -109,13 +96,13 @@ class NestedMapping(DictWrapperStub):
                     ) from e
 
     @classmethod
-    def from_yaml_stream(cls, stream, recursive=True, check=True):
-        return cls(yaml.safe_load(stream), recursive=recursive, check=check)
+    def from_yaml_stream(cls, stream, recursive=True, check=True, loader=yaml.SafeLoader):
+        return cls(yaml.load(stream, Loader=loader), recursive=recursive, check=check)
 
     @classmethod
-    def from_yaml(cls, filepath, recursive=True, check=True):
+    def from_yaml(cls, filepath, recursive=True, check=True, loader=yaml.SafeLoader):
         return cls.from_yaml_stream(
-            open(filepath, mode="r"), recursive=recursive, check=check
+            open(filepath, mode="r"), recursive=recursive, check=check, loader=loader
         )
 
     def __getitem__(self, item):

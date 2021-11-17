@@ -2,10 +2,10 @@ from setuptools import find_packages, setup
 
 setup(
     name='dictwrapper',
-    package_dir={'':'src'},
+    package_dir={'': 'src'},
     packages=['dictwrapper'],
     install_requires=[
-        "ruamel.yaml <= 0.16.12",
+        "pyyaml>=6.0",
         "pandas>=1.1"
     ],
     version='1.3',

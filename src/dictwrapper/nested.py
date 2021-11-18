@@ -161,11 +161,6 @@ class NestedMapping(DictWrapperStub):
             if not isinstance(self.data[item], NestedMapping)
         ]
 
-    def update(self, mapping: Mapping):
-        """Update using a flat dictionary mapping to Nested leaves"""
-        for k, v in mapping.items():
-            self[k] = v
-
     def find_data_(self, key):
         """find the underlying dictionary matching a key at any level
 
